@@ -14,20 +14,6 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
@@ -54,24 +40,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _counter = 0.0;
+  TextEditingController loginController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-  double _myFontSize = 30.0;
-  
-  void _incrementCounter() {
-    if(_counter<99.0){
+  String imageSource = 'images/question-mark.png';
+  var isChecked = false;
+
+  // This method is called when the Login button is pressed
+  void onPressed() {
+    String password = passwordController.text;
+
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-
-      _counter++;
-      _myFontSize++;
-
+      if (password == 'QWERTY123') {
+        imageSource = 'images/idea.png';
+      } else {
+        imageSource = 'images/stop.png';
+      }
     });
   }
+
+  @override
+  void dispose() {
+    loginController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -93,49 +85,38 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('You have pushed the button this many times:',
-            style: TextStyle(fontSize: _myFontSize)),
-            Text(
-              '$_myFontSize',
-              style: TextStyle(fontSize: _myFontSize),
+            TextField(
+              controller: loginController,
+              decoration: InputDecoration(
+                hintText: "Login",
+                border: OutlineInputBorder(),
+                labelText: "Login",
+              ),
             ),
-            Slider(value: _myFontSize, onChanged: setNewValue, min: 0.0, max: 100.0)
+            TextField(
+              controller: passwordController,
+              decoration: InputDecoration(
+                hintText: "Password",
+                border: OutlineInputBorder(),
+                labelText: "Password",
+              ),
+            ),
+            ElevatedButton(
+              onPressed: onPressed,
+              child: Text('Login'),
+            ),
+            // Always use the dynamic imageSource here
+            Semantics(
+              child: Image.asset(imageSource,width: 300,height: 300),
+              label: "This is a basic image",
+            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      // This trailing comma makes auto-formatting nicer for build methods.
     );
-  }
-  void setNewValue(double value)
-  {
-    setState(() {
-      _myFontSize = value;
-    });
-    setState(() {
-      _counter = value;
-    });
-
   }
 }
