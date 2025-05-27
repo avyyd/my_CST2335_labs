@@ -43,6 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController loginController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+
   String imageSource = 'images/question-mark.png';
   var isChecked = false;
 
@@ -62,8 +63,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     loginController.dispose();
-    passwordController.dispose();
-    super.dispose();
+      passwordController.dispose();
+     super.dispose();
   }
 
   @override
@@ -85,27 +86,27 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
+         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+            children: <Widget>[
             TextField(
-              controller: loginController,
+               controller: loginController,
               decoration: InputDecoration(
                 hintText: "Login",
                 border: OutlineInputBorder(),
                 labelText: "Login",
               ),
             ),
-            TextField(
+             TextField(
               controller: passwordController,
               decoration: InputDecoration(
-                hintText: "Password",
+                 hintText: "Password",
                 border: OutlineInputBorder(),
                 labelText: "Password",
               ),
             ),
-            ElevatedButton(
-              onPressed: onPressed,
+              ElevatedButton(
+               onPressed: onPressed,
               child: Text('Login'),
             ),
             // Always use the dynamic imageSource here
