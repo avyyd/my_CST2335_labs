@@ -63,14 +63,15 @@ flutter:
     - images/brownie.jpg
     - images/chicken.jpg
     - images/cookies.jpg
-    - images/crackpot.jpg
+    - images/crockpot.jpg
     - images/icecream.jpg
-    - images/Main Dishes.jpg
+    - images/maindishes.jpg
     - images/pies.jpg
     - images/prok.jpg
     - images/salad.jpg
-    - images/Seafood.jpg
-    - images/sidedishes.jpg
+    - images/seafood.jpg
+    - images/prok1.jpg
+
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
