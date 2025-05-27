@@ -69,13 +69,13 @@ class CategoriesPage extends StatelessWidget {
           color: Colors.black87,
           fontWeight: FontWeight.bold,),),),),
       body: Center(
-        child: Column( mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Column( mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [Text(
           "Not Sure about exactly which recipe you are looking for? Do a search, or dive into our most popular categories.",
-          style: TextStyle(fontSize: 18, color: Colors.black87),
+          style: TextStyle(fontSize: 18, color: Colors.black87,),
         ),Text(
           "BY MEAT",style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),Row(  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        ),Row(  mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [Stack(alignment: AlignmentDirectional.center,
             children: [
               CircleAvatar(
@@ -109,7 +109,7 @@ class CategoriesPage extends StatelessWidget {
           "BY COURSE",
           style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
         ),
-          Row(  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Row(  mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [Stack(alignment: AlignmentDirectional.bottomCenter,
                 children: [
                   CircleAvatar(
@@ -144,7 +144,7 @@ class CategoriesPage extends StatelessWidget {
             "BY DESSERT",
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
-          Row(  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Row(  mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [Stack(alignment: AlignmentDirectional.bottomCenter,
                 children: [
                   CircleAvatar(
