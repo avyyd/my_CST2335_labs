@@ -59,8 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _loadCredentials() async {
-    String? savedUsername = await data.getString('username');
-    String? savedPassword = await data.getString('password');
+    String savedUsername = await data.getString('username');
+    String savedPassword = await data.getString('password');
 
 
       setState(() {
@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       Future.delayed(Duration.zero, () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Loaded saved credentials!')),
+          SnackBar(content: Text('Credentials loaded if saved previously!')),
         );
       });
     }
@@ -117,6 +117,15 @@ class _MyHomePageState extends State<MyHomePage> {
               _clearCredentials();
             },
             child: Text('No'),
+
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _clearCredentials();
+            },
+            child: Text('Later'),
+
           ),
         ],
       ),
