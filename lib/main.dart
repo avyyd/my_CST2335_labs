@@ -1,3 +1,4 @@
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+  class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -44,12 +45,50 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController passwordController = TextEditingController();
 
 
+
   String imageSource = 'images/question-mark.png';
-  var isChecked = false;
+
+
+  final EncryptedSharedPreferences data = EncryptedSharedPreferences();
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCredentials();
+  }
+
+  void _loadCredentials() async {
+    String? savedUsername = await data.getString('username');
+    String? savedPassword = await data.getString('password');
+
+
+      setState(() {
+        loginController.text = savedUsername;
+        passwordController.text = savedPassword;
+      });
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Loaded saved credentials!')),
+        );
+      });
+    }
+
+
+  void _saveCredentials()  {
+     data.setString('username', loginController.text);
+     data.setString('password', passwordController.text);
+  }
+
+  void _clearCredentials()  {
+     data.remove('username');
+     data.remove('password');
+  }
 
   // This method is called when the Login button is pressed
   void onPressed() {
     String password = passwordController.text;
+
 
     setState(() {
       if (password == 'QWERTY123') {
@@ -58,7 +97,32 @@ class _MyHomePageState extends State<MyHomePage> {
         imageSource = 'images/stop.png';
       }
     });
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Save Credentials?'),
+        content: Text('Would you like to save your username and password for next time?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _saveCredentials();
+            },
+            child: Text('Yes'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _clearCredentials();
+            },
+            child: Text('No'),
+          ),
+        ],
+      ),
+    );
   }
+
 
   @override
   void dispose() {
