@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Save Credentials?'),
+        title: Text('Do you want to save credentials?'),
         content: Text('Would you like to save your username and password for next time?'),
         actions: [
           TextButton(
