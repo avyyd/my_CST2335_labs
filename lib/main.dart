@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (savedUsername.isNotEmpty || savedPassword.isNotEmpty) {
       Future.delayed(Duration.zero, () {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Loaded saved credentialsS!')),
+          const SnackBar(content: Text('Loaded saved credentialsSs!')),
         );
       });
     }
