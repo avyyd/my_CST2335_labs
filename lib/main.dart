@@ -56,8 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _loadCredentials() async {
-    String savedUsername = await data.getString('username') ?? '';
-    String savedPassword = await data.getString('password') ?? '';
+    String savedUsername = await data.getString('username') ?? 'a';
+    String savedPassword = await data.getString('password') ?? 'a';
 
     setState(() {
       loginController.text = savedUsername;
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (savedUsername.isNotEmpty || savedPassword.isNotEmpty) {
       Future.delayed(Duration.zero, () {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Loaded saved credentials!')),
+          const SnackBar(content: Text('Loaded saved credentialsS!')),
         );
       });
     }
