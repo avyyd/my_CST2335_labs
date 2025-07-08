@@ -56,8 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _loadCredentials() async {
-    String savedUsername = await data.getString('username') ?? 'a';
-    String savedPassword = await data.getString('password') ?? 'a';
+    String savedUsername = await data.getString('username') ;
+    String savedPassword = await data.getString('password') ;
 
     setState(() {
       loginController.text = savedUsername;
