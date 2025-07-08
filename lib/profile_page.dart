@@ -60,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Not Supported'),
-          content: Text('$featureName is not supported on this device'),
+          content: Text('$featureName is not supported on this one device'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
