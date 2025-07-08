@@ -1,3 +1,9 @@
+/*
+Name : Avneet Dharni
+Lab 05
+
+ */
+
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
@@ -10,33 +16,37 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+
       title: 'Flutter Demo',
+
       theme: ThemeData(
+
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
       onGenerateRoute: (settings) {
+
         if (settings.name == '/secondPage') {
+
           final loginName = settings.arguments as String;
-          return MaterialPageRoute(
-            builder: (context) => ProfilePage(loginName: loginName),
+          return MaterialPageRoute(  builder: (context) => ProfilePage(loginName: loginName),
           );
         }
         // Default route
-        return MaterialPageRoute(
-          builder: (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
+        return MaterialPageRoute(         builder: (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
         );
       },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+      class MyHomePage extends StatefulWidget {
+       const MyHomePage({super.key, required this.title});
+          final String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -114,13 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             child: const Text('No'),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _navigateToProfile();
-            },
-            child: const Text('Later'),
-          ),
+
         ],
       ),
     );
