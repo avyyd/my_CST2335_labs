@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
+// Import for Floor DB:
+import 'ShoppingItem.dart';
+import 'ShoppingItemDatabase.dart';
+
 void main() {
   runApp(MaterialApp(
     title: "Flutter Demo Page",
     home: ListPage(),
     debugShowCheckedModeBanner: false,
-    theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-
-
-    ),
+    theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),
   ));
 }
 
@@ -20,43 +21,73 @@ class ListPage extends StatefulWidget {
 class _ListPageState extends State<ListPage> {
   final TextEditingController _itemController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
-  final List<Map<String, String>> _items = [];
 
-  void _addItem() {
-    String item = _itemController.text.trim();
-    String quantity = _quantityController.text.trim();
-    if (item.isEmpty || quantity.isEmpty) return;
+  List<ShoppingItem> _items = [];
+
+  late ShoppingItemDatabase _db;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _openDBAndLoad();
+  }
+
+  Future<void> _openDBAndLoad() async {
+    _db = await $FloorShoppingItemDatabase
+        .databaseBuilder('shopping_item.db')
+        .build();
+    await _loadItems();
+  }
+
+  Future<void> _loadItems() async {
+    List<ShoppingItem> dbItems = await _db.getDao.getAllShoppingItems();
     setState(() {
-      _items.add({'item': item, 'quantity': quantity});
-      _itemController.clear();
-      _quantityController.clear();
+      _items = dbItems;
+      _loading = false;
     });
   }
 
-  void _confirmDelete(int index) {
-    showDialog(
+  Future<void> _addItem() async {
+    String itemName = _itemController.text.trim();
+    String quantityStr = _quantityController.text.trim();
+    if (itemName.isEmpty || quantityStr.isEmpty) return;
+    int quantity = int.tryParse(quantityStr) ?? 1;
+
+    int id = ShoppingItem.ID++;
+    ShoppingItem newItem = ShoppingItem(id, itemName, quantity);
+
+    await _db.getDao.addShoppingItem(newItem);
+
+    _itemController.clear();
+    _quantityController.clear();
+
+    await _loadItems();
+  }
+
+  Future<void> _confirmDelete(int index) async {
+    ShoppingItem toDelete = _items[index];
+    bool? confirm = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Delete Item'),
-        content: Text('Do you want to delete "${_items[index]['item']}"?'),
+        content: Text('Do you want to delete "${toDelete.name}"?'),
         actions: [
-
           TextButton(
-            onPressed: () {
-              setState(() {
-                _items.removeAt(index);
-              });
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: Text('Yes'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: Text('No'),
           ),
         ],
       ),
     );
+    if (confirm == true) {
+      await _db.getDao.deleteShoppingItem(toDelete);
+      await _loadItems();
+    }
   }
 
   @override
@@ -66,12 +97,12 @@ class _ListPageState extends State<ListPage> {
         title: Text('Flutter Demo Page'),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.primary,
-
-
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: _loading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -83,7 +114,6 @@ class _ListPageState extends State<ListPage> {
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       labelText: 'Item',
-
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -97,7 +127,6 @@ class _ListPageState extends State<ListPage> {
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Quantity',
-
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -121,7 +150,7 @@ class _ListPageState extends State<ListPage> {
                     onLongPress: () => _confirmDelete(index),
                     child: Center(
                       child: Text(
-                        '${index + 1}: ${item['item']}  quantity: ${item['quantity']}',
+                        '${index + 1}: ${item.name}  quantity: ${item.quantity}',
                         style: TextStyle(fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
