@@ -1,165 +1,208 @@
-import 'package:flutter/material.dart';
+///Name Avneet Dharni
 
-// Import for Floor DB:
+import 'package:flutter/material.dart';
 import 'ShoppingItem.dart';
 import 'ShoppingItemDatabase.dart';
 
 void main() {
-  runApp(MaterialApp(
-    title: "Flutter Demo Page",
-    home: ListPage(),
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),
-  ));
+  runApp(const MyApp());
 }
 
-class ListPage extends StatefulWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
-  State<ListPage> createState() => _ListPageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Shopping List Master-Detail',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const MyHomePage(title: 'Shopping List Master-Detail'),
+    );
+  }
 }
 
-class _ListPageState extends State<ListPage> {
-  final TextEditingController _itemController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
-  List<ShoppingItem> _items = [];
-
-  late ShoppingItemDatabase _db;
-  bool _loading = true;
+class _MyHomePageState extends State<MyHomePage> {
+  late TextEditingController _nameController;
+  late TextEditingController _quantityController;
+  late var myDAO;
+  List<ShoppingItem> words = [];
+  ShoppingItem? selectedItem = null;
 
   @override
   void initState() {
     super.initState();
-    _openDBAndLoad();
-  }
-
-  Future<void> _openDBAndLoad() async {
-    _db = await $FloorShoppingItemDatabase
-        .databaseBuilder('shopping_item.db')
-        .build();
-    await _loadItems();
-  }
-
-  Future<void> _loadItems() async {
-    List<ShoppingItem> dbItems = await _db.getDao.getAllShoppingItems();
-    setState(() {
-      _items = dbItems;
-      _loading = false;
+    _nameController = TextEditingController();
+    _quantityController = TextEditingController();
+    $FloorShoppingItemDatabase.databaseBuilder('app_database.db')
+        .build().then((database) async {
+      myDAO = database.getDao;
+      var results = await myDAO.getAllShoppingItems();
+      setState(() {
+        words = results;
+      });
     });
   }
 
-  Future<void> _addItem() async {
-    String itemName = _itemController.text.trim();
-    String quantityStr = _quantityController.text.trim();
-    if (itemName.isEmpty || quantityStr.isEmpty) return;
-    int quantity = int.tryParse(quantityStr) ?? 1;
-
-    int id = ShoppingItem.ID++;
-    ShoppingItem newItem = ShoppingItem(id, itemName, quantity);
-
-    await _db.getDao.addShoppingItem(newItem);
-
-    _itemController.clear();
-    _quantityController.clear();
-
-    await _loadItems();
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _quantityController.dispose();
+    super.dispose();
   }
 
-  Future<void> _confirmDelete(int index) async {
-    ShoppingItem toDelete = _items[index];
-    bool? confirm = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete Item'),
-        content: Text('Do you want to delete "${toDelete.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('Yes'),
+  Widget responsiveLayout() {
+    var size = MediaQuery.of(context).size;
+    var height = size.height;
+    var width = size.width;
+    if ((width > height) && (width > 720.0)) {
+      // Master-Detail
+      return Row(children: [
+        Expanded(flex: 1, child: ListPage()),
+        Expanded(flex: 2, child: DetailsPage())
+      ]);
+    } else {
+      if (selectedItem == null) {
+        return ListPage();
+      } else {
+        return DetailsPage();
+      }
+    }
+  }
+
+  Widget DetailsPage() {
+    if (selectedItem != null) {
+      return Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Item name: ${selectedItem!.name}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text("Quantity: ${selectedItem!.quantity}", style: TextStyle(fontSize: 18)),
+            SizedBox(height: 10),
+            Text("ID: ${selectedItem!.id}", style: TextStyle(fontSize: 18, color: Colors.grey)),
+            SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red[300]),
+                  icon: Icon(Icons.delete),
+                  label: Text("Delete"),
+                  onPressed: () async {
+                    await myDAO.deleteShoppingItem(selectedItem!);
+                    setState(() {
+                      words.removeWhere((item) => item.id == selectedItem!.id);
+                      selectedItem = null;
+                    });
+                  },
+                ),
+                SizedBox(width: 18),
+                OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedItem = null;
+                    });
+                  },
+                  child: Text("Close"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Center(
+        child: Text(
+          "Please select an item from the list",
+          style: TextStyle(fontSize: 24.0, color: Colors.grey),
+        ),
+      );
+    }
+  }
+
+  Widget ListPage() {
+    return Column(children: [
+      Text("Add a new shopping item:", style: TextStyle(fontWeight: FontWeight.bold)),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton(
+              child: Text("Add item"), onPressed: () {
+            setState(() {
+              var input = _nameController.value.text;
+              var qty = int.tryParse(_quantityController.value.text) ?? 1;
+              if(input.isEmpty) return;
+              var newItem = ShoppingItem(ShoppingItem.ID++, input, qty);
+              words.add(newItem);
+              myDAO.addShoppingItem(newItem);
+              _nameController.text = "";
+              _quantityController.text = "";
+            });
+          }),
+          SizedBox(
+            width: 130,
+            child: TextField(
+              controller: _nameController,
+              decoration: InputDecoration(hintText: "Item name"),
+            ),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('No'),
+          SizedBox(width: 10),
+          SizedBox(
+            width: 60,
+            child: TextField(
+              controller: _quantityController,
+              decoration: InputDecoration(hintText: "Qty"),
+              keyboardType: TextInputType.number,
+            ),
           ),
         ],
       ),
-    );
-    if (confirm == true) {
-      await _db.getDao.deleteShoppingItem(toDelete);
-      await _loadItems();
-    }
+      SizedBox(height: 10),
+      Divider(),
+      Expanded(
+        child: ListView.builder(
+            itemCount: words.length,
+            itemBuilder: (context, rowNumber) {
+              return Card(
+                child: ListTile(
+                  title: Text("${words[rowNumber].name}"),
+                  subtitle: Text("Quantity: ${words[rowNumber].quantity}"),
+                  onTap: () {
+                    setState(() {
+                      selectedItem = words[rowNumber];
+                    });
+                  },
+                  // You no longer use long press or double tap for selection/deletion.
+                  // Just use the Delete button in DetailsPage.
+                ),
+              );
+            }
+        ),
+      ),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter Demo Page'),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: _loading
-            ? Center(child: CircularProgressIndicator())
-            : Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: TextField(
-                    controller: _itemController,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      labelText: 'Item',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 6),
-                Expanded(
-                  flex: 1,
-                  child: TextField(
-                    controller: _quantityController,
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: 'Quantity',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 6),
-                ElevatedButton(
-                  onPressed: _addItem,
-                  child: Text('Add'),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: _items.isEmpty
-                  ? Center(child: Text('There are no items in the list'))
-                  : ListView.builder(
-                itemCount: _items.length,
-                itemBuilder: (context, index) {
-                  final item = _items[index];
-                  return GestureDetector(
-                    onLongPress: () => _confirmDelete(index),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}: ${item.name}  quantity: ${item.quantity}',
-                        style: TextStyle(fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(40),
+          child: responsiveLayout(),
         ),
       ),
     );
